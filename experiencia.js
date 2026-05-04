@@ -156,8 +156,13 @@ function desenharCirculos() {
     fill(circulos[i].corR, circulos[i].corG, circulos[i].corB);
     circle(circulos[i].x, circulos[i].y, circulos[i].tamanhoAtual);
 
-    // Circulo menor para dar uma pequena variacao visual
+    // Ellipse menor para dar uma pequena variacao visual
     fill(255);
-    circle(circulos[i].x, circulos[i].y, circulos[i].tamanhoAtual / 3);
+    ellipse(
+      circulos[i].x,
+      circulos[i].y,
+      circulos[i].tamanhoAtual / 3,
+      circulos[i].tamanhoAtual / 5
+    );
   }
 }
