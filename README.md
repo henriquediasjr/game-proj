@@ -1,5 +1,7 @@
 # Projeto com p5.js
 
+ALUNOS: Henrique Dias de Carvalho Junior
+
 Este projeto foi feito em JavaScript com p5.js e foi separado em duas partes:
 
 1. **Game simples:** um jogo de desviar de obstaculos.
