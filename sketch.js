@@ -19,14 +19,23 @@ let obstaculos = [];
 
 // Variaveis de controle do jogo
 let tempoObstaculo = 0;
+let proximoTempoObstaculo = 0;
 let tempoPontuacao = 0;
+let tempoDeJogo = 0;
 let pontuacao = 0;
 let melhorPontuacao = 0;
-let proximaFaixa = 0;
+let ordemFaixas = [];
 
 function setup() {
   // Cria a area do jogo
-  createCanvas(larguraTela, alturaTela);
+  let canvas = createCanvas(larguraTela, alturaTela);
+  let areaDoJogo = document.getElementById("game-container");
+
+  if (areaDoJogo) {
+    canvas.parent("game-container");
+  }
+
+  textFont("Arial");
 
   // Deixa o jogador e as variaveis na posicao inicial
   prepararNovoJogo();
@@ -46,41 +55,93 @@ function draw() {
 }
 
 function telaInicial() {
-  // Fundo da tela inicial
-  strokeWeight(0);
-  fill(20, 30, 70);
-  rect(0, 0, larguraTela, alturaTela);
+  desenharFundoInicial();
 
   // Moldura principal
-  stroke(255);
-  strokeWeight(4);
-  fill(40, 60, 130);
-  rect(100, 70, 600, 360);
+  stroke(160, 195, 255);
+  strokeWeight(2);
+  fill(15, 24, 52, 235);
+  rect(95, 55, 610, 390, 28);
 
-  // Caixa do titulo
-  fill(70, 100, 190);
-  rect(150, 120, 500, 70);
+  // Etiqueta superior
+  noStroke();
+  fill(92, 127, 255);
+  rect(310, 88, 180, 34, 18);
+
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(15);
+  text("JOGO RAPIDO", 400, 105);
 
   // Textos da tela inicial
   fill(255);
+  textSize(34);
+  text("DESVIE DOS", 400, 165);
+  text("OBSTACULOS", 400, 205);
+
+  fill(210, 220, 255);
+  textSize(18);
+  text("Use as setas para se mover e sobreviva o maximo que puder", 400, 250);
+
+  fill(35, 45, 80);
+  rect(165, 282, 205, 44, 14);
+  rect(430, 282, 205, 44, 14);
+
+  fill(235, 240, 255);
+  textSize(16);
+  text("SETAS = mover", 267, 304);
+  text("ESPACO = comecar", 532, 304);
+
+  desenharBotaoInicial();
+
+  // Pequenos elementos para lembrar o jogo
+  fill(220, 80, 80);
+  rect(215, 393, 72, 18, 6);
+  rect(515, 387, 95, 24, 6);
+
+  fill(80, 220, 120);
+  rect(370, 386, 60, 26, 8);
+}
+
+function desenharFundoInicial() {
+  // Faz um fundo em degrade usando linhas simples
+  for (let i = 0; i < alturaTela; i = i + 1) {
+    let mistura = map(i, 0, alturaTela, 0, 1);
+    let corR = lerp(10, 28, mistura);
+    let corG = lerp(18, 46, mistura);
+    let corB = lerp(44, 120, mistura);
+
+    stroke(corR, corG, corB);
+    line(0, i, larguraTela, i);
+  }
+
+  noStroke();
+  fill(255, 255, 255, 18);
+  circle(120, 100, 150);
+  circle(690, 92, 110);
+
+  fill(90, 130, 255, 28);
+  circle(710, 410, 190);
+
+  stroke(255, 255, 255, 22);
   strokeWeight(1);
-  textSize(30);
-  text("DESVIE DOS OBSTACULOS", 205, 165);
+  line(133, 0, 133, alturaTela);
+  line(266, 0, 266, alturaTela);
+  line(399, 0, 399, alturaTela);
+  line(532, 0, 532, alturaTela);
+  line(665, 0, 665, alturaTela);
+}
 
-  textSize(22);
-  text("Pressione qualquer tecla", 255, 250);
-  text("ESPACO ou setas ja comecam o jogo", 205, 290);
+function desenharBotaoInicial() {
+  // O botao ganha um pequeno movimento para chamar atencao
+  let deslocamento = sin(frameCount * 0.05) * 3;
 
-  // Linha visual
-  stroke(255);
-  strokeWeight(3);
-  line(220, 340, 580, 340);
+  fill(123, 227, 143);
+  rect(250, 332 + deslocamento, 300, 58, 18);
 
-  // Ciculos decorativos
-  fill(255, 220, 80);
-  circle(220, 375, 25);
-  circle(400, 375, 25);
-  circle(580, 375, 25);
+  fill(18, 36, 24);
+  textSize(20);
+  text("PRESSIONE UMA TECLA", 400, 361 + deslocamento);
 }
 
 function verificarInicioDoJogo() {
@@ -105,6 +166,8 @@ function rodarJogo() {
   line(399, 0, 399, alturaTela);
   line(532, 0, 532, alturaTela);
   line(665, 0, 665, alturaTela);
+
+  tempoDeJogo = tempoDeJogo + deltaTime;
 
   moverJogador();
   criarObstaculos();
@@ -170,56 +233,47 @@ function criarObstaculos() {
   // Conta o tempo para criar um novo obstaculo
   tempoObstaculo = tempoObstaculo + deltaTime;
 
-  if (tempoObstaculo >= 900) {
-    let posicaoX = 25;
-
-    // Escolhe em qual faixa o obstaculo vai nascer
-    if (proximaFaixa === 0) {
-      posicaoX = 25;
-    } else if (proximaFaixa === 1) {
-      posicaoX = 155;
-    } else if (proximaFaixa === 2) {
-      posicaoX = 285;
-    } else if (proximaFaixa === 3) {
-      posicaoX = 415;
-    } else if (proximaFaixa === 4) {
-      posicaoX = 545;
-    } else if (proximaFaixa === 5) {
-      posicaoX = 675;
-    }
-
-    // Altura simples para criar pequenas variacoes
-    let alturaObstaculo = 30;
-
-    if (proximaFaixa === 1 || proximaFaixa === 4) {
-      alturaObstaculo = 45;
-    }
+  if (tempoObstaculo >= proximoTempoObstaculo) {
+    let larguraObstaculo = sortearNumero(70, 120);
+    let alturaObstaculo = sortearNumero(25, 55);
+    let posicaoX = sortearPosicaoXObstaculo(larguraObstaculo);
 
     // Coloca o novo obstaculo dentro do array
     obstaculos.push({
       x: posicaoX,
       y: -60,
-      largura: 100,
+      largura: larguraObstaculo,
       altura: alturaObstaculo,
-      velocidade: 180 + pontuacao * 2
+      velocidadeExtra: sortearNumero(0, 150)
     });
 
-    // Vai para a proxima faixa
-    proximaFaixa = proximaFaixa + 1;
-
-    if (proximaFaixa > 5) {
-      proximaFaixa = 0;
-    }
-
     tempoObstaculo = 0;
+    proximoTempoObstaculo = sortearTempoObstaculo();
   }
+}
+
+function sortearTempoObstaculo() {
+  // Com o tempo de partida, os obstaculos aparecem mais rapido
+  let segundosDeJogo = tempoDeJogo / 1000;
+  let tempoBase = 950 - segundosDeJogo * 35;
+  let tempoFinal = tempoBase + sortearNumero(-150, 150);
+
+  return constrain(tempoFinal, 120, 1000);
 }
 
 function moverObstaculos() {
   // Percorre o array dos obstaculos
+  let velocidadeAtualDoJogo = calcularVelocidadeAtualDoJogo();
+
   for (let i = 0; i < obstaculos.length; i = i + 1) {
-    obstaculos[i].y = obstaculos[i].y + obstaculos[i].velocidade * (deltaTime / 1000);
+    let velocidadeFinal = velocidadeAtualDoJogo + obstaculos[i].velocidadeExtra;
+
+    obstaculos[i].y = obstaculos[i].y + velocidadeFinal * (deltaTime / 1000);
   }
+
+  obstaculos = obstaculos.filter(function (obstaculo) {
+    return obstaculo.y < alturaTela + 80;
+  });
 }
 
 function desenharObstaculos() {
@@ -264,6 +318,7 @@ function desenharPontuacao() {
   // Mostra os pontos na tela
   fill(255);
   strokeWeight(1);
+  textAlign(LEFT, BASELINE);
   textSize(20);
   text("Pontos: " + pontuacao, 20, 30);
   text("Recorde: " + melhorPontuacao, 20, 60);
@@ -284,18 +339,19 @@ function telaGameOver() {
   // Textos da tela final
   fill(255);
   strokeWeight(1);
+  textAlign(CENTER, CENTER);
   textSize(34);
-  text("GAME OVER", 285, 170);
+  text("GAME OVER", 400, 170);
 
   textSize(24);
-  text("Pontuacao final: " + pontuacao, 260, 240);
-  text("Melhor pontuacao: " + melhorPontuacao, 240, 285);
-  text("Pressione ESPACO para reiniciar", 190, 340);
+  text("Pontuacao final: " + pontuacao, 400, 240);
+  text("Melhor pontuacao: " + melhorPontuacao, 400, 285);
+  text("Pressione ESPACO para reiniciar", 400, 340);
 }
 
 function verificarReinicio() {
-  // Reinicia o jogo quando uma tecla de acao e pressionada
-  if (teclaDeAcaoPressionada()) {
+  // Reinicia o jogo apenas quando o espaco e pressionado
+  if (keyIsDown(32)) {
     prepararNovoJogo();
     estadoJogo = "jogando";
   }
@@ -308,10 +364,12 @@ function prepararNovoJogo() {
 
   // Limpa as variaveis do jogo
   obstaculos = [];
+  ordemFaixas = [];
   tempoObstaculo = 0;
   tempoPontuacao = 0;
+  tempoDeJogo = 0;
   pontuacao = 0;
-  proximaFaixa = 0;
+  proximoTempoObstaculo = sortearTempoObstaculo();
 }
 
 function teclaDeAcaoPressionada() {
@@ -327,4 +385,40 @@ function teclaDeAcaoPressionada() {
   } else {
     return false;
   }
+}
+
+function sortearNumero(minimo, maximo) {
+  return minimo + Math.random() * (maximo - minimo);
+}
+
+function sortearInteiro(minimo, maximo) {
+  return Math.floor(sortearNumero(minimo, maximo + 1));
+}
+
+function sortearPosicaoXObstaculo(larguraObstaculo) {
+  let faixas = [20, 150, 280, 410, 540, 670];
+
+  if (ordemFaixas.length === 0) {
+    ordemFaixas = [0, 1, 2, 3, 4, 5];
+
+    for (let i = ordemFaixas.length - 1; i > 0; i = i - 1) {
+      let indiceAleatorio = sortearInteiro(0, i);
+      let valorTemporario = ordemFaixas[i];
+
+      ordemFaixas[i] = ordemFaixas[indiceAleatorio];
+      ordemFaixas[indiceAleatorio] = valorTemporario;
+    }
+  }
+
+  let faixaEscolhida = ordemFaixas.pop();
+  let deslocamentoHorizontal = sortearNumero(-18, 18);
+  let posicaoX = faixas[faixaEscolhida] + deslocamentoHorizontal;
+
+  return constrain(posicaoX, 0, larguraTela - larguraObstaculo);
+}
+
+function calcularVelocidadeAtualDoJogo() {
+  let segundosDeJogo = tempoDeJogo / 1000;
+
+  return 240 + segundosDeJogo * 28;
 }

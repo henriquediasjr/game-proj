@@ -1,6 +1,6 @@
 # Projeto com p5.js
 
-ALUNOS: Henrique Dias de Carvalho Junior
+ALUNOS: Henrique Dias de Carvalho Junior e David Rodrigues de Souza
 Link repositóri0: https://github.com/henriquediasjr/game-proj 
 
 Este projeto foi feito em JavaScript com p5.js e foi separado em duas partes:
